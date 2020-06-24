@@ -1,0 +1,248 @@
+#:kivy 1.0.9
+				
+<RecordPanelWidget>:
+    label_score: 			label_score
+	label_highest_score: 	label_highest_score
+    label_level:			label_level
+
+    canvas:
+        Color:
+            #rgb: 1, 0, 0
+		
+	Label:
+        pos:root.x, root.y+400
+        size:100,100
+        text: '最高分:'
+	Label:
+		id: label_highest_score
+        pos:root.x+150, root.y+400
+        size:100,100
+		text: '0'
+		
+    Label:
+        pos:root.x, root.y+300
+        size:100,100
+        text: '得分:'
+    Label:
+        id:label_score
+        pos:root.x+100, root.y+300
+        size:100,100
+        text: '0'
+
+    Label:
+        pos:root.x, root.y+200
+        size:100,100
+        text:'级别:'
+		#font_name:'./font/DroidSansFallback.ttf'
+    Label:
+        id: label_level
+        pos:root.x+100, root.y+200
+        size:100,100
+        text:'1'
+
+<ImageLabel>:
+    image:image
+    orientation: 'vertical'
+    Image:
+        id:image
+        allow_stretch: 1
+        size_hint: 1, 0.8
+        source: root.image_source
+
+    Label:
+        size_hint: 1, 0.2
+        text: root.label_text
+
+<ActivityBoxWidget>:
+
+<CtrlButtonImage>:
+    Image:
+        source: root.source
+        pos: root.pos
+        size: root.size
+
+
+<CtrlButton@Button>:
+	size: 200,200
+	#disabled: True
+	canvas:
+		Color:
+            rgb: 1, 0, 0
+        Ellipse:
+			pos: self.pos
+			size: self.size
+    Label:
+        pos:root.pos
+        size:root.size
+        text:root.text
+	
+#控制方块区域   变化  左移 右移  加速
+<ControlPanelWidget>:
+	canvas:
+		Color:
+            rgb: 0.4, 0.5, 0.7
+
+        #Rectangle:
+         #   pos: self.pos
+         #   size:self.size
+
+        Line:
+            rectangle: self.x, self.y, self.width, self.height
+
+<CustomRect>:
+    canvas:
+        Color:
+            rgb: self.rect_clr
+
+        Rectangle:
+            pos: self.pos
+            size:self.size
+
+<CustomLine>:
+    canvas:
+        Color:
+            rgb: self.line_clr
+
+        Line:
+            width: self.line_width
+            rectangle: self.pos[0], self.pos[1], self.width, self.height
+
+
+<RootWidget>:
+    actTetrisBackgroundPanel	:actTetrisBackgroundPanel
+    nextTetrisBackgroundPanel	:nextTetrisBackgroundPanel
+
+    actTetrisPanel		: actTetrisPanel
+    currTetris			: currTetris
+	nextTetris			: nextTetris
+	ctrlPanel			: ctrlPanel
+    recordPanel			: recordPanel
+    activity_rect       : activity_rect
+    activity_border_line: activity_border_line
+	canvas:
+		#游戏背景色
+        Color:
+            rgb: app.root_bgclr_r, app.root_bgclr_g, app.root_bgclr_b
+        Rectangle:
+            pos:root.pos
+            size:root.size
+
+	#控制面板框，主要用途用来给其他widget做为参考点
+	CustomLine:
+		id: ctrlPanel
+		line_clr: 0.6,0.6,0.6
+		line_width: 2
+		pos: app.anchor_x, app.anchor_y
+		size: root.width-2*app.anchor_x, app.length*8
+
+    #活动区域最外围方框
+    CustomLine:
+        line_clr: 0, 0, 0
+        line_width: 5
+        pos: app.anchor_x, root.ctrlPanel.top+app.length
+        size: root.width-app.anchor_x*2, root.height-root.ctrlPanel.top-app.length-app.anchor_y
+
+    #活动区域背景块
+    CustomRect:
+        id: activity_rect
+        rect_clr: app.activity_bgclr_r, app.activity_bgclr_g, app.activity_bgclr_b
+        pos: app.anchor_x+50, root.ctrlPanel.top+app.length+25
+        size: root.width-200, root.height-root.ctrlPanel.top-200
+
+    #活动区域内连线
+    CustomLine:
+        id: activity_border_line
+        line_clr: 0, 0, 0
+        line_width: 2
+        pos: root.activity_rect.pos[0]+10, root.activity_rect.pos[1]+10
+		size: app.length*app.activity_cols+20, app.length*app.activity_rows+20
+
+    TetrisArea:
+        id: actTetrisBackgroundPanel
+        base: 100, 100
+		activity_size:app.activity_cols, app.activity_rows
+		pos: root.activity_border_line.pos[0]+10, root.activity_border_line.pos[1]+10
+		size: app.length*app.activity_cols, app.length*app.activity_rows
+
+    #activity tetris view
+	TetrisArea:
+		id: actTetrisPanel
+		tetris_size: app.length, app.length
+		activity_size:app.activity_cols, app.activity_rows
+		init_base:self.activity_size[0]/2, self.activity_size[1]-1
+		base: self.init_base
+		pos:root.actTetrisBackgroundPanel.pos
+		size: root.actTetrisBackgroundPanel.size
+
+    TetrisArea:
+        id: nextTetrisBackgroundPanel
+        activity_size:5, 5
+        pos: root.activity_border_line.pos[0]+root.activity_border_line.width+10, root.activity_border_line.pos[1]
+		size: app.length*self.activity_size[0], app.length*self.activity_size[1]
+
+
+    Tetris:
+    	id: nextTetris
+		tetris_size: app.length, app.length
+		activity_size:root.nextTetrisBackgroundPanel.activity_size
+		init_base:self.activity_size[0]/2, self.activity_size[1]/2
+		base: self.init_base
+		pos: root.nextTetrisBackgroundPanel.pos
+
+
+
+	Tetris:
+	    id:currTetris
+	    tetris_size: root.actTetrisPanel.tetris_size
+		activity_size:root.actTetrisPanel.activity_size
+		base: root.actTetrisPanel.base
+		init_base:root.actTetrisPanel.init_base
+		pos: root.actTetrisPanel.pos
+
+
+    RecordPanelWidget:
+        id:recordPanel
+        pos:root.x+700, root.top-600
+        size:400,1000
+
+    BoxLayout:
+        pos: root.ctrlPanel.pos
+        size:root.ctrlPanel.size
+        orientation: 'horizontal'
+
+        ImageLabel:
+            pos: 10, 150
+            size: 250, 250
+            image_source: "./data/images/left.png"
+            label_text: "左移"
+            #sound_source:""
+            on_press: root.currTetris.MoveLeft()
+            on_release: root.currTetris.MoveCancel()
+
+        ImageLabel:
+            pos: 180, 10
+            size: 250, 250
+            image_source: "./data/images/start.png"
+            label_text: "开始/加速下移"
+            #sound_source:""
+            on_press: root.currTetris.move_down_faster()
+
+        ImageLabel:
+            pos: 350, 150
+            size: 250, 250
+            image_source: "./data/images/right.png"
+            label_text: "右移"
+            #sound_source:""
+            on_press: root.currTetris.MoveRight()
+            on_release: root.currTetris.MoveCancel()
+
+
+        ImageLabel:
+            pos: 700, 10
+            size: 350, 350
+            image_source: "./data/images/refresh.png"
+            label_text: "旋转"
+            #sound_source:""
+            on_press: root.currTetris.Change()
+
+
